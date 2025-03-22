@@ -2,7 +2,6 @@
 "use client";
 import { useState, FormEvent } from "react";
 import { useAuth } from "@/context/AuthContext";
-import '@/styles/register.css'; // Updated import to match the new location
 
 export default function RegisterPage() {
   const [email, setEmail] = useState("");

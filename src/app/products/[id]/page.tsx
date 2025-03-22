@@ -1,11 +1,11 @@
 "use client";
-import { useState, useEffect } from 'react';
-import { useRouter, useParams } from 'next/navigation'; // Use useParams from next/navigation
+import { useState, useEffect } from "react";
+import { useRouter, useParams } from "next/navigation"; // Use useParams from next/navigation
 
 const UpdateProduct = () => {
-  const [name, setName] = useState('');
-  const [price, setPrice] = useState('');
-  const [description, setDescription] = useState('');
+  const [name, setName] = useState("");
+  const [price, setPrice] = useState("");
+  const [description, setDescription] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
@@ -17,13 +17,13 @@ const UpdateProduct = () => {
         try {
           const response = await fetch(`/api/products/${id}`);
           const data = await response.json();
-          setName(data.name);
-          setPrice(data.price.toString());
-          setDescription(data.description);
+          setName(data.data.name);
+          setPrice(data.data.price.toString());
+          setDescription(data.data.description);
           setLoading(false);
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
         } catch (err) {
-          setError('Failed to fetch product details.');
+          setError("Failed to fetch product details.");
           setLoading(false);
         }
       }
@@ -36,64 +36,76 @@ const UpdateProduct = () => {
     e.preventDefault();
 
     if (!name || !price || !description) {
-      setError('All fields are required');
+      setError("All fields are required");
       return;
     }
 
     try {
       const response = await fetch(`/api/products/${id}`, {
-        method: 'PUT',
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify({ name, price: parseFloat(price), description }),
+        body: JSON.stringify({
+          name,
+          price: parseFloat(price),
+          description,
+        }),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to update product');
+        throw new Error("Failed to update product");
       }
 
-      router.push('/products');
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      router.push("/products");
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
-      setError('Something went wrong. Please try again later.');
+      setError("Something went wrong. Please try again later.");
     }
   };
 
   if (loading) return <p>Loading...</p>;
 
   return (
-    <div>
-      <h1>Update Product</h1>
-      {error && <p>{error}</p>}
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Name:</label>
+    <div className="p-6 bg-gray-100 min-h-screen">
+      <h1 className="text-2xl font-bold mb-4">Update Product</h1>
+      {error && <p className="text-red-500 mb-4">{error}</p>}
+      <form onSubmit={handleSubmit} className="bg-white p-6 rounded shadow-md">
+        <div className="mb-4">
+          <label className="block text-gray-700">Name:</label>
           <input
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
+            className="w-full px-3 py-2 border rounded"
           />
         </div>
-        <div>
-          <label>Price:</label>
+        <div className="mb-4">
+          <label className="block text-gray-700">Price:</label>
           <input
             type="number"
             value={price}
             onChange={(e) => setPrice(e.target.value)}
             required
+            className="w-full px-3 py-2 border rounded"
           />
         </div>
-        <div>
-          <label>Description:</label>
+        <div className="mb-4">
+          <label className="block text-gray-700">Description:</label>
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             required
+            className="w-full px-3 py-2 border rounded"
           />
         </div>
-        <button type="submit">Update Product</button>
+        <button
+          type="submit"
+          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+        >
+          Update Product
+        </button>
       </form>
     </div>
   );

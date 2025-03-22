@@ -1,5 +1,5 @@
 // src/components/ConfirmationDialog.tsx
-import React from 'react';
+import React from "react";
 
 interface ConfirmationDialogProps {
   message: string;
@@ -7,13 +7,27 @@ interface ConfirmationDialogProps {
   onCancel: () => void;
 }
 
-const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({ message, onConfirm, onCancel }) => {
+const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
+  message,
+  onConfirm,
+  onCancel,
+}) => {
   return (
-    <div style={{ position: 'fixed', top: '0', left: '0', right: '0', bottom: '0', background: 'rgba(0, 0, 0, 0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-      <div style={{ background: 'white', padding: '20px', borderRadius: '8px' }}>
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+      <div className="bg-white p-6 rounded-lg">
         <p>{message}</p>
-        <button onClick={onConfirm}>Confirm</button>
-        <button onClick={onCancel}>Cancel</button>
+        <button
+          onClick={onConfirm}
+          className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+        >
+          Confirm
+        </button>
+        <button
+          onClick={onCancel}
+          className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+        >
+          Cancel
+        </button>
       </div>
     </div>
   );

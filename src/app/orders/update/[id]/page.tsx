@@ -1,6 +1,6 @@
 "use client";
-import { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation'; // Use useRouter instead of useParams
+import { useState, useEffect } from "react";
+import { useParams, useRouter } from "next/navigation"; // Use useRouter instead of useParams
 
 interface Order {
   id: number;
@@ -10,12 +10,12 @@ interface Order {
 }
 
 const UpdateOrder = () => {
-  const { id } =useParams(); // Use router.query to get the dynamic `id`
+  const { id } = useParams(); // Use router.query to get the dynamic `id`
   const router = useRouter();
   const [order, setOrder] = useState<Order | null>(null);
-  const [customerName, setCustomerName] = useState('');
-  const [totalAmount, setTotalAmount] = useState('');
-  const [createdAt, setCreatedAt] = useState('');
+  const [customerName, setCustomerName] = useState("");
+  const [totalAmount, setTotalAmount] = useState("");
+  const [createdAt, setCreatedAt] = useState("");
   const [loading, setLoading] = useState(true);
 
   // Fetch the order details when the component mounts or the id changes
@@ -25,12 +25,12 @@ const UpdateOrder = () => {
       const response = await fetch(`/api/orders?id=${id}`);
       if (response.ok) {
         const data = await response.json();
-        setOrder(data);
-        setCustomerName(data.customerName);
-        setTotalAmount(data.totalAmount.toString());
-        setCreatedAt(data.createdAt);
+        setOrder(data.data);
+        setCustomerName(data.data.customerName);
+        setTotalAmount(data.data.totalAmount.toString());
+        setCreatedAt(data.data.createdAt);
       } else {
-        console.error('Failed to fetch order details');
+        console.error("Failed to fetch order details");
       }
       setLoading(false);
     };
@@ -48,55 +48,66 @@ const UpdateOrder = () => {
     };
 
     const response = await fetch(`/api/orders/${id}`, {
-      method: 'PUT',
+      method: "PUT",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(updatedOrder),
     });
 
     if (response.ok) {
-      router.push('/orders'); // Redirect to the orders page after updating
+      router.push("/orders"); // Redirect to the orders page after updating
     } else {
-      console.error('Failed to update order');
+      console.error("Failed to update order");
     }
   };
 
   if (loading) return <div>Loading...</div>;
 
   return (
-    <div>
-      <h1>Update Order</h1>
+    <div className="p-6 bg-gray-100 min-h-screen">
+      <h1 className="text-2xl font-bold mb-4">Update Order</h1>
       {order ? (
-        <form onSubmit={handleUpdate}>
-          <div>
-            <label>Customer Name</label>
+        <form
+          onSubmit={handleUpdate}
+          className="bg-white p-6 rounded shadow-md"
+        >
+          <div className="mb-4">
+            <label className="block text-gray-700">Customer Name</label>
             <input
               type="text"
               value={customerName}
               onChange={(e) => setCustomerName(e.target.value)}
               required
+              className="w-full px-3 py-2 border rounded"
             />
           </div>
-          <div>
-            <label>Total Amount</label>
+          <div className="mb-4">
+            <label className="block text-gray-700">Total Amount</label>
             <input
               type="number"
               value={totalAmount}
               onChange={(e) => setTotalAmount(e.target.value)}
               required
+              className="w-full px-3 py-2 border rounded"
             />
           </div>
-          <div>
-            <label>Created At</label>
+          <div className="mb-4">
+            <label className="block text-gray-700">Created At</label>
             <input
               type="date"
               value={createdAt}
               onChange={(e) => setCreatedAt(e.target.value)}
               required
+              className="w-full px-3 py-2 border rounded"
             />
           </div>
-          <button type="submit">Update Order</button>
+          <button
+            type="submit"
+            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+          >
+            Update Order
+          </button>
         </form>
       ) : (
         <p>Order not found</p>

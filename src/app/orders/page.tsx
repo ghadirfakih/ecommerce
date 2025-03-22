@@ -1,7 +1,14 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import {
+  Table,
+  TableRow,
+  TableCell,
+  TableBody,
+  TableHeader,
+} from "@/components/ui/table";
 
 interface Order {
   id: number;
@@ -18,12 +25,12 @@ const OrderList = () => {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const response = await fetch('/api/orders', { cache: 'no-store' });
-        if (!response.ok) throw new Error('Failed to fetch orders');
+        const response = await fetch("/api/orders", { cache: "no-store" });
+        if (!response.ok) throw new Error("Failed to fetch orders");
         const data = await response.json();
-        setOrders(data);
+        setOrders(data.data);
       } catch (error) {
-        console.error('Error fetching orders:', (error as Error).message);
+        console.error("Error fetching orders:", (error as Error).message);
       } finally {
         setLoading(false);
       }
@@ -33,53 +40,70 @@ const OrderList = () => {
   }, []);
 
   const handleDelete = async (id: number) => {
-    if (!confirm('Are you sure you want to delete this order?')) return;
+    if (!confirm("Are you sure you want to delete this order?")) return;
 
     try {
-      await fetch(`/api/orders/${id}`, { method: 'DELETE' });
-      setOrders(orders.filter(order => order.id !== id));
+      await fetch(`/api/orders/${id}`, { method: "DELETE" });
+      setOrders((prevOrders) => prevOrders.filter((order) => order.id !== id));
     } catch (error) {
-      console.error('Failed to delete order:', (error as Error).message);
+      console.error("Failed to delete order:", (error as Error).message);
     }
   };
 
   if (loading) return <p>Loading orders...</p>;
 
   return (
-    <div>
-      <h1>Order Management</h1>
-      <button onClick={() => router.push('/orders/create')}>Create Order</button>
-      <table border={1} cellPadding={10}>
-        <thead>
-          <tr>
-            <th>Order ID</th>
-            <th>Product ID</th>
-            <th>Quantity</th>
-            <th>Status</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
+    <div className="">
+      <h1 className="text-2xl font-bold mb-4">Order Management</h1>
+      <button
+        onClick={() => router.push("/orders/create")}
+        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 mb-4"
+      >
+        Create Order
+      </button>
+      <Table className="min-w-full bg-white shadow-md rounded">
+        <TableHeader>
+          <TableRow>
+            <TableCell>Order ID</TableCell>
+            <TableCell>Product ID</TableCell>
+            <TableCell>Quantity</TableCell>
+            <TableCell>Status</TableCell>
+            <TableCell>Actions</TableCell>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
           {orders.length > 0 ? (
             orders.map((order) => (
-              <tr key={order.id}>
-                <td>{order.id}</td>
-                <td>{order.productId}</td>
-                <td>{order.quantity}</td>
-                <td>{order.status}</td>
-                <td>
-                  <button onClick={() => router.push(`/orders/update/${order.id}`)}>Edit</button>
-                  <button onClick={() => handleDelete(order.id)}>Delete</button>
-                </td>
-              </tr>
+              <TableRow key={order.id} className="hover:bg-gray-100">
+                <TableCell>{order.id}</TableCell>
+                <TableCell>{order.productId}</TableCell>
+                <TableCell>{order.quantity}</TableCell>
+                <TableCell>{order.status}</TableCell>
+                <TableCell>
+                  <button
+                    onClick={() => router.push(`/orders/update/${order.id}`)}
+                    className="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 mr-2"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleDelete(order.id)}
+                    className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
+                  >
+                    Delete
+                  </button>
+                </TableCell>
+              </TableRow>
             ))
           ) : (
-            <tr>
-              <td colSpan={5}>No orders found.</td>
-            </tr>
+            <TableRow>
+              <TableCell colSpan={5} className="text-center py-4">
+                No orders found.
+              </TableCell>
+            </TableRow>
           )}
-        </tbody>
-      </table>
+        </TableBody>
+      </Table>
     </div>
   );
 };

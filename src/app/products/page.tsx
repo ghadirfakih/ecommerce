@@ -1,7 +1,14 @@
 "use client";
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import ConfirmationDialog from '../../components/ConfirmationDialog'; // Ensure you have this component
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import ConfirmationDialog from "../../components/ConfirmationDialog"; // Ensure you have this component
 
 interface Product {
   id: number;
@@ -21,15 +28,15 @@ const ProductList = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch('/api/products'); // Replace with real API endpoint
+        const response = await fetch("/api/products"); // Replace with real API endpoint
         if (!response.ok) {
-          throw new Error('Failed to fetch products');
+          throw new Error("Failed to fetch products");
         }
         const data = await response.json();
-        setProducts(data);
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        setProducts(data.data);
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (err) {
-        setError('Failed to load products. Please try again later.');
+        setError("Failed to load products. Please try again later.");
       }
     };
 
@@ -47,19 +54,21 @@ const ProductList = () => {
     if (productToDelete) {
       try {
         const response = await fetch(`/api/products/${productToDelete.id}`, {
-          method: 'DELETE',
+          method: "DELETE",
         });
 
         if (!response.ok) {
-          throw new Error('Failed to delete the product');
+          throw new Error("Failed to delete the product");
         }
 
-        setProducts(products.filter((product) => product.id !== productToDelete.id));
+        setProducts(
+          products.filter((product) => product.id !== productToDelete.id)
+        );
         setShowConfirm(false);
         setProductToDelete(null);
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (err) {
-        setError('Failed to delete product. Please try again later.');
+        setError("Failed to delete product. Please try again later.");
       }
     }
   };
@@ -71,41 +80,56 @@ const ProductList = () => {
   };
 
   return (
-    <div>
-      <h1>Product Management</h1>
-      <button onClick={() => router.push('/products/create')}>Create Product</button>
+    <div className="">
+      <h1 className="text-2xl font-bold mb-4">Product Management</h1>
+      <button
+        onClick={() => router.push("/products/create")}
+        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 mb-4"
+      >
+        Create Product
+      </button>
 
       {/* Error Message */}
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+      {error && <p className="text-red-500 mb-4">{error}</p>}
 
-      <table>
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Price</th>
-            <th>Description</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
+      <Table className="min-w-full bg-white shadow-md rounded">
+        <TableHeader>
+          <TableRow>
+            <TableCell>Name</TableCell>
+            <TableCell>Price</TableCell>
+            <TableCell>Description</TableCell>
+            <TableCell>Actions</TableCell>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
           {products.map((product) => (
-            <tr key={product.id}>
-              <td>{product.name}</td>
-              <td>{product.price}</td>
-              <td>{product.description}</td>
-              <td>
-                <button onClick={() => router.push(`/products/update/${product.id}`)}>Edit</button>
-                <button onClick={() => handleDelete(product)}>Delete</button>
-              </td>
-            </tr>
+            <TableRow key={product.id} className="hover:bg-gray-100">
+              <TableCell>{product.name}</TableCell>
+              <TableCell>{product.price}</TableCell>
+              <TableCell>{product.description}</TableCell>
+              <TableCell>
+                <button
+                  onClick={() => router.push(`/products/update/${product.id}`)}
+                  className="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 mr-2"
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={() => handleDelete(product)}
+                  className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
+                >
+                  Delete
+                </button>
+              </TableCell>
+            </TableRow>
           ))}
-        </tbody>
-      </table>
+        </TableBody>
+      </Table>
 
       {/* Confirmation Dialog */}
       {showConfirm && productToDelete && (
         <ConfirmationDialog
-          message={`Are you sure you want to delete "${productToDelete.name}"?`}
+          message={`Are you sure you want to delete \"${productToDelete.name}\"?`}
           onConfirm={confirmDelete}
           onCancel={cancelDelete}
         />
