@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation"; // Use useRouter instead of useParams
+import { useParams, useRouter } from "next/navigation"; // Use useRouter to access router.query
 
 interface Order {
   id: number;
@@ -10,8 +10,8 @@ interface Order {
 }
 
 const UpdateOrder = () => {
-  const { id } = useParams(); // Use router.query to get the dynamic `id`
   const router = useRouter();
+  const { id } =useParams(); // Use router.query to get the dynamic `id`
   const [order, setOrder] = useState<Order | null>(null);
   const [customerName, setCustomerName] = useState("");
   const [totalAmount, setTotalAmount] = useState("");
@@ -20,23 +20,37 @@ const UpdateOrder = () => {
 
   // Fetch the order details when the component mounts or the id changes
   useEffect(() => {
-    if (!id) return; // Prevent running if `id` is not available yet
+    if (!id) return;
+  
     const fetchOrder = async () => {
-      const response = await fetch(`/api/orders?id=${id}`);
-      if (response.ok) {
+      try {
+        const response = await fetch(`/api/orders/${id}`);
+        if (!response.ok) throw new Error("Failed to fetch order details");
+  
         const data = await response.json();
-        setOrder(data.data);
-        setCustomerName(data.data.customerName);
-        setTotalAmount(data.data.totalAmount.toString());
-        setCreatedAt(data.data.createdAt);
-      } else {
-        console.error("Failed to fetch order details");
+        console.log("Fetched order data:", data);
+  
+        const orderData = data?.data;
+        if (!orderData) throw new Error("Order data not found");
+  
+        setOrder(orderData);
+        setCustomerName(orderData.customerName || "");
+        setTotalAmount(orderData.totalAmount?.toString() || "");
+        setCreatedAt(orderData.createdAt || "");
+      } catch (error) {
+        if (error instanceof Error) {
+          console.error("Error fetching order:", error.message);
+        } else {
+          console.error("Unexpected error:", error);
+        }
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
-
+  
     fetchOrder();
   }, [id]);
+  
 
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -68,10 +82,7 @@ const UpdateOrder = () => {
     <div className="p-6 bg-gray-100 min-h-screen">
       <h1 className="text-2xl font-bold mb-4">Update Order</h1>
       {order ? (
-        <form
-          onSubmit={handleUpdate}
-          className="bg-white p-6 rounded shadow-md"
-        >
+        <form onSubmit={handleUpdate} className="bg-white p-6 rounded shadow-md">
           <div className="mb-4">
             <label className="block text-gray-700">Customer Name</label>
             <input

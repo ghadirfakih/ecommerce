@@ -12,14 +12,18 @@ import {
 
 interface Order {
   id: number;
-  productId: number;
+  orderId: string;  // Updated to reflect `orderId` as a string
+  productId: string;  // Updated to reflect `productId` as a string
   quantity: number;
   status: string;
+  customerName: string;
+  totalAmount: number;
 }
 
 const OrderList = () => {
-  const [orders, setOrders] = useState<Order[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]); 
   const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -28,9 +32,9 @@ const OrderList = () => {
         const response = await fetch("/api/orders", { cache: "no-store" });
         if (!response.ok) throw new Error("Failed to fetch orders");
         const data = await response.json();
-        setOrders(data.data);
+        setOrders(data?.data || []);
       } catch (error) {
-        console.error("Error fetching orders:", (error as Error).message);
+        setError("Error fetching orders: " + (error as Error).message);
       } finally {
         setLoading(false);
       }
@@ -46,14 +50,15 @@ const OrderList = () => {
       await fetch(`/api/orders/${id}`, { method: "DELETE" });
       setOrders((prevOrders) => prevOrders.filter((order) => order.id !== id));
     } catch (error) {
-      console.error("Failed to delete order:", (error as Error).message);
+      setError("Failed to delete order: " + (error as Error).message);
     }
   };
 
   if (loading) return <p>Loading orders...</p>;
+  if (error) return <p className="text-red-500">{error}</p>;
 
   return (
-    <div className="">
+    <div>
       <h1 className="text-2xl font-bold mb-4">Order Management</h1>
       <button
         onClick={() => router.push("/orders/create")}

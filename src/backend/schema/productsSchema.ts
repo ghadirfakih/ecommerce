@@ -13,3 +13,4 @@ export const products = mysqlTable("products", {
   description: varchar("description", { length: 500 }),
   createdAt: datetime("createdAt"),
 });
+

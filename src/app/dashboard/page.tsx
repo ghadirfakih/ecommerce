@@ -1,4 +1,3 @@
-// src/pages/dashboard/index.tsx
 "use client";
 
 import {
@@ -45,9 +44,28 @@ const Dashboard = () => {
       const productsData = await productsResponse.json();
       const ordersData = await ordersResponse.json();
 
-      setStats(statsData);
-      setLatestProducts(productsData.slice(0, 5)); // Get latest 5 products
-      setLatestOrders(ordersData.slice(0, 5)); // Get latest 5 orders
+      // Debug: Log the product data to check if it's an array
+      console.log('Products Data:', productsData);
+
+      // Ensure productsData is an array before using slice
+      if (Array.isArray(productsData)) {
+        setLatestProducts(productsData.slice(0, 5)); // Get latest 5 products
+      } else {
+        console.error("Expected 'productsData' to be an array but received:", productsData);
+        setLatestProducts([]); // Set to empty array if the format is incorrect
+        alert("Error: Products data is not in the expected format.");
+      }
+
+      // Handle other API responses similarly
+      if (Array.isArray(ordersData)) {
+        setLatestOrders(ordersData.slice(0, 5)); // Get latest 5 orders
+      } else {
+        console.error("Expected 'ordersData' to be an array but received:", ordersData);
+        setLatestOrders([]); // Set to empty array if the format is incorrect
+        alert("Error: Orders data is not in the expected format.");
+      }
+
+      setStats(statsData); // Assuming statsData is already in the correct format
     };
 
     fetchDashboardData();

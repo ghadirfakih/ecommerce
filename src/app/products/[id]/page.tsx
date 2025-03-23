@@ -1,6 +1,7 @@
 "use client";
+
 import { useState, useEffect } from "react";
-import { useRouter, useParams } from "next/navigation"; // Use useParams from next/navigation
+import { useRouter, useParams } from "next/navigation"; // Correct way to use the app directory router
 
 const UpdateProduct = () => {
   const [name, setName] = useState("");
@@ -9,23 +10,28 @@ const UpdateProduct = () => {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
-  const { id } = useParams(); // Get the product ID from the URL using useParams
+  const { id } = useParams(); // Dynamically fetch the product id from the URL
 
   useEffect(() => {
+    if (!id) {
+      setError("Product ID is missing.");
+      setLoading(false);
+      return;
+    }
+
     const fetchProduct = async () => {
-      if (id) {
-        try {
-          const response = await fetch(`/api/products/${id}`);
-          const data = await response.json();
-          setName(data.data.name);
-          setPrice(data.data.price.toString());
-          setDescription(data.data.description);
-          setLoading(false);
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        } catch (err) {
-          setError("Failed to fetch product details.");
-          setLoading(false);
-        }
+      try {
+        const response = await fetch(`/api/products/${id}`);
+        if (!response.ok) throw new Error("Product not found");
+        const data = await response.json();
+        setName(data.name);
+        setPrice(data.price.toString());
+        setDescription(data.description);
+        setLoading(false);
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      } catch (err) {
+        setError("Failed to fetch product details.");
+        setLoading(false);
       }
     };
 
@@ -57,8 +63,8 @@ const UpdateProduct = () => {
         throw new Error("Failed to update product");
       }
 
-      router.push("/products");
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      router.push("/products"); // Redirect to product listing after update
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
       setError("Something went wrong. Please try again later.");
     }

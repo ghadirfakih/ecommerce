@@ -1,15 +1,17 @@
-import { NextRequest } from "next/server";
-import {
-  createProduct,
-  getProducts,
-} from "../../../backend/controllers/productController";
+import {  NextResponse } from "next/server";
+import db from "@/backend/config/drizzleConfig"; 
+import { products } from "@/backend/schema/productsSchema";  
 
-// GET: Retrieve all products
+// Get all products (for the API endpoint)
 export async function GET() {
-  return getProducts(); // Call the controller function
-}
-
-// POST: Create a new product
-export async function POST(req: NextRequest) {
-  return createProduct(req); // Call the controller function
+  try {
+    const result = await db.select().from(products); // Ensure this fetches all products
+    if (!result.length) {
+      return NextResponse.json({ message: "No products found" }, { status: 404 });
+    }
+    return NextResponse.json({ data: result });
+  } catch (error) {
+    console.error("Error fetching products:", error);
+    return NextResponse.json({ message: "Error fetching products" }, { status: 500 });
+  }
 }

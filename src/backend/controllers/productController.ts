@@ -4,13 +4,14 @@ import db from "../config/drizzleConfig";
 import { products } from "../schema/productsSchema";
 
 // Get all products
+
 export const getProducts = async () => {
   try {
     const result = await db.select().from(products);
-    return NextResponse.json({ data: result });
+    return result; // Return the product data
   } catch (error) {
     console.error("Error fetching products:", error);
-    return NextResponse.json({ error: "Error fetching products", status: 500 });
+    throw new Error("Failed to fetch products"); // Throw an error to be handled by the route handler
   }
 };
 
@@ -98,3 +99,5 @@ export const deleteProduct = async (req: NextRequest) => {
     return NextResponse.json({ error: "Error deleting product", status: 500 });
   }
 };
+export { products };
+

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 import {
   Table,
@@ -18,7 +19,7 @@ interface Product {
 }
 
 const ProductList = () => {
-  const [products, setProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<Product[]>([]); // Initialize as an empty array
   const [showConfirm, setShowConfirm] = useState(false);
   const [productToDelete, setProductToDelete] = useState<Product | null>(null);
   const [error, setError] = useState<string | null>(null); // Optional error state
@@ -33,9 +34,17 @@ const ProductList = () => {
           throw new Error("Failed to fetch products");
         }
         const data = await response.json();
-        setProducts(data.data);
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
+        console.log("Fetched Products:", data); // Log to verify structure
+
+        // Ensure data is an array and set products
+        if (Array.isArray(data.data)) {
+          setProducts(data.data); // Assuming 'data.data' is the correct path
+        } else {
+          setProducts([]); // In case the structure is unexpected
+        }
       } catch (err) {
+        console.error("Error fetching products:", err);
         setError("Failed to load products. Please try again later.");
       }
     };
@@ -66,7 +75,6 @@ const ProductList = () => {
         );
         setShowConfirm(false);
         setProductToDelete(null);
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (err) {
         setError("Failed to delete product. Please try again later.");
       }
@@ -80,7 +88,7 @@ const ProductList = () => {
   };
 
   return (
-    <div className="">
+    <div>
       <h1 className="text-2xl font-bold mb-4">Product Management</h1>
       <button
         onClick={() => router.push("/products/create")}
@@ -102,34 +110,42 @@ const ProductList = () => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {products.map((product) => (
-            <TableRow key={product.id} className="hover:bg-gray-100">
-              <TableCell>{product.name}</TableCell>
-              <TableCell>{product.price}</TableCell>
-              <TableCell>{product.description}</TableCell>
-              <TableCell>
-                <button
-                  onClick={() => router.push(`/products/update/${product.id}`)}
-                  className="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 mr-2"
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={() => handleDelete(product)}
-                  className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
-                >
-                  Delete
-                </button>
+          {products.length > 0 ? (
+            products.map((product) => (
+              <TableRow key={product.id} className="hover:bg-gray-100">
+                <TableCell>{product.name}</TableCell>
+                <TableCell>{product.price}</TableCell>
+                <TableCell>{product.description}</TableCell>
+                <TableCell>
+                  <button
+                    onClick={() => router.push(`/products/[id]/page.tsx`)}
+                    className="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 mr-2"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleDelete(product)}
+                    className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
+                  >
+                    Delete
+                  </button>
+                </TableCell>
+              </TableRow>
+            ))
+          ) : (
+            <TableRow>
+              <TableCell colSpan={4} className="text-center">
+                No products available.
               </TableCell>
             </TableRow>
-          ))}
+          )}
         </TableBody>
       </Table>
 
       {/* Confirmation Dialog */}
       {showConfirm && productToDelete && (
         <ConfirmationDialog
-          message={`Are you sure you want to delete \"${productToDelete.name}\"?`}
+          message={`Are you sure you want to delete "${productToDelete.name}"?`}
           onConfirm={confirmDelete}
           onCancel={cancelDelete}
         />
